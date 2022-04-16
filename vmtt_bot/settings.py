@@ -1,11 +1,17 @@
-import os
+from pydantic import BaseSettings
 
-from dotenv import load_dotenv
 
-load_dotenv()
+class Settings(BaseSettings):
+    api_token: str
+    log_level: str = 'DEBUG'
 
-API_TOKEN = os.environ['API_TOKEN']
-LOG_LEVEL = os.getenv('LOG_LEVEL', 'DEBUG')
+    yc_oauth_token: str
+    yc_folder_id: str
 
-YC_OAUTH_TOKEN = os.environ['YC_OAUTH_TOKEN']
-YC_FOLDER_ID = os.environ['YC_FOLDER_ID']
+    chat_id_permitted_list: list[int] = []
+
+    class Config:
+        env_file = '.env'
+
+
+settings = Settings()

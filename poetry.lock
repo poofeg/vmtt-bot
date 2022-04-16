@@ -186,6 +186,7 @@ optional = false
 python-versions = ">=3.6.1"
 
 [package.dependencies]
+python-dotenv = {version = ">=0.10.4", optional = true, markers = "extra == \"dotenv\""}
 typing-extensions = ">=3.7.4.3"
 
 [package.extras]
@@ -250,7 +251,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "80a15de396ec0b2072a9f4354f99daf14cc6596a1b4ce0ce5e15c35d537ffe97"
+content-hash = "2be30a72bf7324119ee624a7a6938ee6a2850e681ceac0ea948661c9ff5762bb"
 
 [metadata.files]
 aiogram = [
