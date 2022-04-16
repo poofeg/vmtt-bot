@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "vmtt-bot"
+version = "0.1.0"
+description = "Voice message to text Telegram Bot"
+authors = ["Alexey Vaganov <poofeg@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/poofeg/vmtt-bot"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+aiogram = "^2.20"
+aiohttp = "^3.8.1"
+python-dotenv = "^0.20.0"
+pydantic = "^1.9.0"
+
+[tool.poetry.dev-dependencies]
+mypy = "^0.942"
+flake8 = "^4.0.1"
+
+[tool.poetry.scripts]
+vmtt-bot = "vmtt_bot.main:run"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
