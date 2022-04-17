@@ -20,28 +20,31 @@ async def send_welcome(message: types.Message) -> None:
     await message.answer('Добавь меня в группу или перешли мне сообщение')
 
 
-@dp.message_handler(content_types=types.ContentType.VOICE)
-async def process_voice(message: types.Message) -> None:
+async def process_voice_or_audio(message: types.Message, audio: bool = False) -> None:
     if message.chat.id not in settings.chat_id_permitted_list:
         await message.reply(f'Чат с ID {message.chat.id} не в списке разрешенных')
         return
-    file: types.File = await message.voice.get_file()
+    await message.answer_chat_action('typing')
+    file: types.File
+    if audio:
+        file = await message.audio.get_file()
+    else:
+        file = await message.voice.get_file()
     voice_data = io.BytesIO()
     await message.bot.download_file(file.file_path, voice_data)
-    text = await yc_stt.recognize(voice_data, mp3=False)
+    await message.answer_chat_action('typing')
+    text = await yc_stt.recognize(voice_data, audio)
     await message.reply(text)
+
+
+@dp.message_handler(content_types=types.ContentType.VOICE)
+async def process_voice(message: types.Message) -> None:
+    await process_voice_or_audio(message, audio=False)
 
 
 @dp.message_handler(chat_type=types.ChatType.PRIVATE, content_types=types.ContentType.AUDIO)
 async def process_audio(message: types.Message) -> None:
-    if message.chat.id not in settings.chat_id_permitted_list:
-        await message.reply(f'Чат с ID {message.chat.id} не в списке разрешенных')
-        return
-    file: types.File = await message.audio.get_file()
-    audio_data = io.BytesIO()
-    await message.bot.download_file(file.file_path, audio_data)
-    text = await yc_stt.recognize(audio_data, mp3=True)
-    await message.reply(text)
+    await process_voice_or_audio(message, audio=True)
 
 
 def run() -> None:
