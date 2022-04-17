@@ -65,7 +65,7 @@ class YcStt:
             self.__iam_token = IamToken.parse_obj(data)
         else:
             headers = {'Metadata-Flavor': 'Google'}
-            async with self.__session.post(
+            async with self.__session.get(
                 'http://169.254.169.254/computeMetadata/v1/instance/service-accounts/default/token', headers=headers
             ) as response:
                 response.raise_for_status()
