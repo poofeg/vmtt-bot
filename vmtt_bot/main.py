@@ -32,7 +32,7 @@ async def process_voice(message: types.Message) -> None:
     await message.reply(text)
 
 
-@dp.message_handler(content_types=types.ContentType.AUDIO)
+@dp.message_handler(chat_type=types.ChatType.PRIVATE, content_types=types.ContentType.AUDIO)
 async def process_audio(message: types.Message) -> None:
     if message.chat.id not in settings.chat_id_permitted_list:
         await message.reply(f'Чат с ID {message.chat.id} не в списке разрешенных')
