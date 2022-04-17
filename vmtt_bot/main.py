@@ -26,9 +26,6 @@ async def process_voice(message: types.Message) -> None:
         await message.reply(f'Чат с ID {message.chat.id} не в списке разрешенных')
         return
     voice = message.voice
-    if voice.duration > 30:
-        await message.reply('Слишком длинное сообщение')
-        return
     file: types.File = await voice.get_file()
     voice_data = io.BytesIO()
     await voice.bot.download_file(file.file_path, voice_data)

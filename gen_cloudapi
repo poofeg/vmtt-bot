@@ -1,0 +1,13 @@
+#!/bin/bash
+
+rm -rf cloudapi
+rm -rf vendor && mkdir vendor
+git clone https://github.com/yandex-cloud/cloudapi
+pushd cloudapi || exit
+python -m grpc_tools.protoc -I . -I third_party/googleapis \
+    --python_out=../vendor --grpc_python_out=../vendor \
+    --mypy_out=../vendor --mypy_grpc_out=../vendor \
+    yandex/cloud/ai/stt/v3/stt.proto \
+    yandex/cloud/ai/stt/v3/stt_service.proto
+popd || exit
+touch vendor/yandex/py.typed
