@@ -211,7 +211,7 @@ types-protobuf = ">=3.19.5"
 name = "protobuf"
 version = "3.20.0"
 description = "Protocol Buffers"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 
@@ -313,7 +313,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "a4a02190eb7a7646c8540ece5001b755d5544c4766661defc1214e06a6a56c51"
+content-hash = "ee0bbae35553f902b8904642590c4f2f9044c312b15fb056d1dc9471915f8501"
 
 [metadata.files]
 aiogram = [
