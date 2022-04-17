@@ -7,7 +7,8 @@ COPY pyproject.toml poetry.lock ./
 RUN poetry install --no-root --no-dev
 
 COPY README.md ./
+COPY vendor vendor
 COPY vmtt_bot vmtt_bot
 RUN poetry install --no-dev
 
-CMD poetry run python -m main
+CMD poetry run vmtt-bot
