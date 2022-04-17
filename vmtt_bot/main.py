@@ -25,11 +25,22 @@ async def process_voice(message: types.Message) -> None:
     if message.chat.id not in settings.chat_id_permitted_list:
         await message.reply(f'Чат с ID {message.chat.id} не в списке разрешенных')
         return
-    voice = message.voice
-    file: types.File = await voice.get_file()
+    file: types.File = await message.voice.get_file()
     voice_data = io.BytesIO()
-    await voice.bot.download_file(file.file_path, voice_data)
-    text = await yc_stt.recognize(voice_data)
+    await message.bot.download_file(file.file_path, voice_data)
+    text = await yc_stt.recognize(voice_data, mp3=False)
+    await message.reply(text)
+
+
+@dp.message_handler(content_types=types.ContentType.AUDIO)
+async def process_audio(message: types.Message) -> None:
+    if message.chat.id not in settings.chat_id_permitted_list:
+        await message.reply(f'Чат с ID {message.chat.id} не в списке разрешенных')
+        return
+    file: types.File = await message.audio.get_file()
+    audio_data = io.BytesIO()
+    await message.bot.download_file(file.file_path, audio_data)
+    text = await yc_stt.recognize(audio_data, mp3=True)
     await message.reply(text)
 
 

@@ -54,12 +54,12 @@ class YcStt:
         self.__iam_token = IamToken.parse_obj(data)
         return format_authorization()
 
-    async def recognize(self, audio_file: io.BytesIO) -> str:
+    async def recognize(self, audio_file: io.BytesIO, mp3: bool = False) -> str:
         def request_iterator() -> Iterator[stt_pb2.StreamingRequest]:
             recognition_model_options = stt_pb2.RecognitionModelOptions(
                 audio_format=stt_pb2.AudioFormatOptions(
                     container_audio=stt_pb2.ContainerAudio(
-                        container_audio_type=stt_pb2.ContainerAudio.OGG_OPUS,
+                        container_audio_type=stt_pb2.ContainerAudio.MP3 if mp3 else stt_pb2.ContainerAudio.OGG_OPUS,
                     ),
                 ),
             )
