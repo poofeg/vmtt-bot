@@ -1,12 +1,12 @@
 # vmtt-bot
-Voice message to text Telegram Bot based on Yandex SpeechKit.
+Voice-Message-to-Text Telegram Bot based on Yandex SpeechKit.
 
 ## Run in terminal
 * Install Poetry: https://python-poetry.org/docs/#installation
 * Type the following:
 ```shell
 cp example.env .env
-edit .env
+editor .env
 poetry install
 poetry run vmtt-bot
 ```
@@ -16,7 +16,7 @@ poetry run vmtt-bot
 * Type the following:
 ```shell
 cp example.env .env
-edit .env
+editor .env
 docker build -t vmtt-bot .
 docker run -it --rm --env-file=.env vmtt-bot
 ```
