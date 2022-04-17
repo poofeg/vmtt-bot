@@ -50,7 +50,7 @@ async def process_audio(message: types.Message) -> None:
 def run() -> None:
     async def on_startup(dispatcher: Dispatcher) -> None:
         global yc_stt
-        yc_stt = YcStt(settings.yc_oauth_token, settings.yc_folder_id)
+        yc_stt = YcStt(settings.yc_folder_id, settings.yc_oauth_token)
 
     async def on_shutdown(dispatcher: Dispatcher) -> None:
         await yc_stt.close()

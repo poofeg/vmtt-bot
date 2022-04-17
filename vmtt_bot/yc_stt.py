@@ -1,7 +1,7 @@
 import io
 from collections.abc import Iterator
-from datetime import datetime, timezone
-from typing import Optional, Awaitable
+from datetime import datetime, timezone, timedelta
+from typing import Optional
 
 import aiohttp
 import grpc
@@ -28,12 +28,14 @@ class IamToken(YcBaseModel):
     expires_at: datetime
 
 
-class RecognizeAnswer(YcBaseModel):
-    result: str
+class ComputeMetadataToken(BaseModel):
+    access_token: str
+    expires_in: int
+    token_type: str
 
 
 class YcStt:
-    def __init__(self, oauth_token: str, folder_id: str) -> None:
+    def __init__(self, folder_id: str, oauth_token: str = None) -> None:
         self.__session = aiohttp.ClientSession()
         self.__channel = grpc.aio.secure_channel(
             'stt.api.cloud.yandex.net:443', grpc.ssl_channel_credentials()
@@ -49,13 +51,30 @@ class YcStt:
     async def __get_authorization(self) -> str:
         def format_authorization() -> str:
             return f'Bearer {self.__iam_token.iam_token}'
-        if self.__iam_token and self.__iam_token.expires_at > datetime.now(timezone.utc):
+
+        now = datetime.now(timezone.utc)
+        if self.__iam_token and self.__iam_token.expires_at > now + timedelta(minutes=1):
             return format_authorization()
-        body = {'yandexPassportOauthToken': self.__oauth_token}
-        async with self.__session.post('https://iam.api.cloud.yandex.net/iam/v1/tokens', json=body) as response:
-            response.raise_for_status()
-            data = await response.json()
-        self.__iam_token = IamToken.parse_obj(data)
+        if self.__oauth_token:
+            body = {'yandexPassportOauthToken': self.__oauth_token}
+            async with self.__session.post(
+                'https://iam.api.cloud.yandex.net/iam/v1/tokens', json=body
+            ) as response:
+                response.raise_for_status()
+                data = await response.json()
+            self.__iam_token = IamToken.parse_obj(data)
+        else:
+            headers = {'Metadata-Flavor': 'Google'}
+            async with self.__session.post(
+                'http://169.254.169.254/computeMetadata/v1/instance/service-accounts/default/token', headers=headers
+            ) as response:
+                response.raise_for_status()
+                data = await response.json()
+            cmt = ComputeMetadataToken.parse_obj(data)
+            self.__iam_token = IamToken(
+                iam_token=cmt.access_token,
+                expires_at=now + timedelta(seconds=cmt.expires_in),
+            )
         return format_authorization()
 
     async def recognize(self, audio_file: io.BytesIO, audio: bool = False) -> str:
