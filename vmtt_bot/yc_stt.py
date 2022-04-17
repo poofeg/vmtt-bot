@@ -35,12 +35,16 @@ class RecognizeAnswer(YcBaseModel):
 class YcStt:
     def __init__(self, oauth_token: str, folder_id: str) -> None:
         self.__session = aiohttp.ClientSession()
+        self.__channel = grpc.aio.secure_channel(
+            'stt.api.cloud.yandex.net:443', grpc.ssl_channel_credentials()
+        )
         self.__oauth_token = oauth_token
         self.__folder_id = folder_id
         self.__iam_token: Optional[IamToken] = None
 
-    def close(self) -> Awaitable:
-        return self.__session.close()
+    async def close(self) -> None:
+        await self.__session.close()
+        await self.__channel.close()
 
     async def __get_authorization(self) -> str:
         def format_authorization() -> str:
@@ -72,17 +76,14 @@ class YcStt:
                 yield stt_pb2.StreamingRequest(chunk=stt_pb2.AudioChunk(data=data))
                 data = audio_file.read(CHUNK_SIZE)
 
-        cred = grpc.ssl_channel_credentials()
-        async with grpc.aio.secure_channel('stt.api.cloud.yandex.net:443', cred) as channel:
-            stub = stt_service_pb2_grpc.RecognizerStub(channel)
+        stub = stt_service_pb2_grpc.RecognizerStub(self.__channel)
+        response_iterator = stub.RecognizeStreaming(request_iterator(), metadata=(
+            ('authorization', await self.__get_authorization()),
+            ('x-folder-id', self.__folder_id),
+        ))
 
-            response_iterator = stub.RecognizeStreaming(request_iterator(), metadata=(
-                ('authorization', await self.__get_authorization()),
-                ('x-folder-id', self.__folder_id),
-            ))
-
-            parts: list[str] = []
-            async for response in response_iterator:  # type: stt_pb2.StreamingResponse
-                if response.HasField("final"):
-                    parts.append(response.final.alternatives[0].text)
-            return ' '.join(parts)
+        parts: list[str] = []
+        async for response in response_iterator:  # type: stt_pb2.StreamingResponse
+            if response.HasField('final'):
+                parts.append(response.final.alternatives[0].text)
+        return ' '.join(parts)
