@@ -108,12 +108,14 @@ class YcStt:
                 raise Exception(response_data)
             return response_data
 
-    async def get_folders(self, yc_oauth_token) -> dict[str, str]:
+    async def get_folders(self, yc_oauth_token: str) -> dict[str, str]:
         headers = {
             hdrs.AUTHORIZATION: await self.__get_authorization(yc_oauth_token)
         }
         async with self.__session.get(YC_RESOURCE_MANAGER / 'clouds', headers=headers) as response:
             clouds_data = await response.json()
+            if response.status >= 400:
+                raise Exception(clouds_data)
         result: dict[str, str] = {}
         if 'clouds' not in clouds_data:
             return result
@@ -121,6 +123,8 @@ class YcStt:
             async with self.__session.get(YC_RESOURCE_MANAGER / 'folders',
                                           params={'cloudId': cloud['id']}, headers=headers) as response:
                 folders_data = await response.json()
+                if response.status >= 400:
+                    raise Exception(clouds_data)
             if 'folders' not in folders_data:
                 continue
             for folder in folders_data['folders']:
