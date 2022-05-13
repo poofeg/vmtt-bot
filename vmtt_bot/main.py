@@ -132,6 +132,7 @@ async def send_welcome(message: types.Message, state: FSMContext) -> None:
             reply_markup=markup,
         )
         return
+    await AuthStates.authorized.set()
     if message.chat.type == types.ChatType.PRIVATE:
         await message.answer('Добавь меня в группу или перешли мне сообщение.')
     else:
