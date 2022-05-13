@@ -70,11 +70,6 @@ async def logout(message: types.Message, state: FSMContext):
     await message.answer('Авторизация удалена')
 
 
-@dp.message_handler(state=AuthStates.authorized, content_types=types.ContentType.ANY)
-async def send_welcome(message: types.Message) -> None:
-    await message.answer('Добавь меня в группу или перешли мне сообщение.')
-
-
 def get_folders_markup(folders: dict[str, str], selected_folder_id: str) -> types.InlineKeyboardMarkup:
     return types.InlineKeyboardMarkup(inline_keyboard=[
         [
