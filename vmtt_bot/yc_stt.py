@@ -187,7 +187,10 @@ class YcStt:
         ))
 
         parts: list[str] = []
-        async for response in response_iterator:  # type: stt_pb2.StreamingResponse
-            if response.HasField('final_refinement'):
-                parts.append(response.final_refinement.normalized_text.alternatives[0].text)
+        try:
+            async for response in response_iterator:  # type: stt_pb2.StreamingResponse
+                if response.HasField('final_refinement'):
+                    parts.append(response.final_refinement.normalized_text.alternatives[0].text)
+        except grpc.aio.AioRpcError as exc:
+            return exc.details()
         return ' '.join(parts)
