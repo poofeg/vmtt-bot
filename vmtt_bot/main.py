@@ -106,12 +106,19 @@ async def send_welcome(message: types.Message, state: FSMContext) -> None:
     if args:
         payload = decode_payload(args)
         token = await yc_stt.get_access_token(payload)
-        await AuthStates.authorized.set()
         folders = await yc_stt.get_folders(token)
+        if not folders:
+            markup = types.InlineKeyboardMarkup(inline_keyboard=[
+                [
+                    types.InlineKeyboardButton('Открыть консоль Yandex Cloud', url='https://console.cloud.yandex.ru/')
+                ],
+            ])
+            await message.answer('Авторизация успешна, но у вас нет ни одного каталога в облаке.', reply_markup=markup)
         selected_folder_id = next(iter(folders))
         async with state.proxy() as data:
             data['yc_oauth_token'] = token
             data['yc_folder_id'] = selected_folder_id
+        await AuthStates.authorized.set()
         await message.answer(f'Авторизация успешна. Доступные каталоги (выбранный отмечен галочкой):',
                              reply_markup=get_folders_markup(folders, selected_folder_id))
     elif message.chat.id not in settings.chat_id_permitted_list:

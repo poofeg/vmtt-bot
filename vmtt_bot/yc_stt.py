@@ -115,10 +115,14 @@ class YcStt:
         async with self.__session.get(YC_RESOURCE_MANAGER / 'clouds', headers=headers) as response:
             clouds_data = await response.json()
         result: dict[str, str] = {}
+        if 'clouds' not in clouds_data:
+            return result
         for cloud in clouds_data['clouds']:
             async with self.__session.get(YC_RESOURCE_MANAGER / 'folders',
                                           params={'cloudId': cloud['id']}, headers=headers) as response:
                 folders_data = await response.json()
+            if 'folders' not in folders_data:
+                continue
             for folder in folders_data['folders']:
                 result[folder['id']] = f'{cloud["name"]} - {folder["name"]}'
         return result
