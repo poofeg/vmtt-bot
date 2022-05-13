@@ -85,6 +85,10 @@ class YcStt:
                         container_audio_type=stt_pb2.ContainerAudio.MP3 if audio else stt_pb2.ContainerAudio.OGG_OPUS,
                     ),
                 ),
+                text_normalization=stt_pb2.TextNormalizationOptions(
+                    text_normalization=stt_pb2.TextNormalizationOptions.TEXT_NORMALIZATION_ENABLED,
+                    literature_text=True,
+                ),
             )
             streaming_options = stt_pb2.StreamingOptions(recognition_model=recognition_model_options)
             yield stt_pb2.StreamingRequest(session_options=streaming_options)
