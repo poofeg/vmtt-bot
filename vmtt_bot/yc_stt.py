@@ -108,5 +108,5 @@ class YcStt:
         parts: list[str] = []
         async for response in response_iterator:  # type: stt_pb2.StreamingResponse
             if response.HasField('final_refinement'):
-                parts.append(response.final.alternatives[0].text)
+                parts.append(response.final_refinement.normalized_text.alternatives[0].text)
         return ' '.join(parts)
