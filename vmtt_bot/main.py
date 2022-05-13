@@ -114,11 +114,11 @@ async def send_welcome(message: types.Message, state: FSMContext) -> None:
                 ],
             ])
             await message.answer('Авторизация успешна, но у вас нет ни одного каталога в облаке.', reply_markup=markup)
+            return
         selected_folder_id = next(iter(folders))
         async with state.proxy() as data:
             data['yc_oauth_token'] = token
             data['yc_folder_id'] = selected_folder_id
-        await AuthStates.authorized.set()
         await message.answer(f'Авторизация успешна. Доступные каталоги (выбранный отмечен галочкой):',
                              reply_markup=get_folders_markup(folders, selected_folder_id))
     elif message.chat.id not in settings.chat_id_permitted_list:
@@ -135,7 +135,7 @@ async def send_welcome(message: types.Message, state: FSMContext) -> None:
             ],
         ])
         await message.answer(
-            'Для использования бота необходимо авторизоваться в Яндекс.Облаке',
+            'Для использования бота необходимо авторизоваться в Yandex Cloud',
             reply_markup=markup,
         )
         return
