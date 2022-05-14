@@ -94,8 +94,6 @@ async def select_catalog(callback_query: types.CallbackQuery, state: FSMContext)
     )
 
 
-@dp.message_handler(state='*', commands=['start'])
-@dp.message_handler(state='*', content_types=types.ContentType.ANY, chat_type=types.ChatType.PRIVATE)
 async def send_welcome(message: types.Message, state: FSMContext) -> None:
     args = message.get_args()
     if args:
@@ -139,6 +137,21 @@ async def send_welcome(message: types.Message, state: FSMContext) -> None:
         await message.answer('Добавь меня в группу или перешли мне сообщение.')
     else:
         await message.answer('Готов.')
+
+
+@dp.message_handler(state='*', commands=['start'])
+async def start_command(message: types.Message, state: FSMContext) -> None:
+    await send_welcome(message, state)
+
+
+@dp.message_handler(state=AuthStates.authorized, content_types=types.ContentType.ANY, chat_type=types.ChatType.PRIVATE)
+async def default_for_authorized_private(message: types.Message) -> None:
+    await message.answer('Добавь меня в группу или перешли мне сообщение.')
+
+
+@dp.message_handler(state='*', content_types=types.ContentType.ANY, chat_type=types.ChatType.PRIVATE)
+async def default_for_private(message: types.Message, state: FSMContext) -> None:
+    await send_welcome(message, state)
 
 
 def run() -> None:
